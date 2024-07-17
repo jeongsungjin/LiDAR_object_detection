@@ -108,8 +108,6 @@ void updateTrackedObjects(const std::vector<visualization_msgs::Marker>& detecte
 }
 
 void cloud_cb(const sensor_msgs::PointCloud2ConstPtr& cloud_msg) {
-    tracked_objects.clear();
-
     ROS_INFO("Received point cloud message");
 
     if (cloud_msg->data.empty()) {
@@ -118,31 +116,25 @@ void cloud_cb(const sensor_msgs::PointCloud2ConstPtr& cloud_msg) {
     }
 
     pcl::PointCloud<pcl::PointXYZI>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZI>);
-    try {
-        pcl::fromROSMsg(*cloud_msg, *cloud);
-    } catch (const pcl::PCLException& e) {
-        ROS_ERROR_STREAM("PCL exception caught during cloud conversion: " << e.what());
+    pcl::fromROSMsg(*cloud_msg, *cloud);
+
+    if (cloud->points.empty()) {
+        ROS_WARN("Converted cloud is empty. Skipping further processing.");
         return;
     }
 
     // Perform pass-through filter
-    pcl::PassThrough<pcl::PointXYZI> pass_x;
-    pass_x.setInputCloud(cloud);
-    pass_x.setFilterFieldName("x");
-    pass_x.setFilterLimits(xMinROI, xMaxROI);
-    pass_x.filter(*cloud);
-
-    pcl::PassThrough<pcl::PointXYZI> pass_y;
-    pass_y.setInputCloud(cloud);
-    pass_y.setFilterFieldName("y");
-    pass_y.setFilterLimits(yMinROI, yMaxROI);
-    pass_y.filter(*cloud);
-
-    pcl::PassThrough<pcl::PointXYZI> pass_z;
-    pass_z.setInputCloud(cloud);
-    pass_z.setFilterFieldName("z");
-    pass_z.setFilterLimits(zMinROI, zMaxROI);
-    pass_z.filter(*cloud);
+    pcl::PassThrough<pcl::PointXYZI> pass;
+    pass.setInputCloud(cloud);
+    pass.setFilterFieldName("x");
+    pass.setFilterLimits(xMinROI, xMaxROI);
+    pass.filter(*cloud);
+    pass.setFilterFieldName("y");
+    pass.setFilterLimits(yMinROI, yMaxROI);
+    pass.filter(*cloud);
+    pass.setFilterFieldName("z");
+    pass.setFilterLimits(zMinROI, zMaxROI);
+    pass.filter(*cloud);
 
     // Perform voxel grid downsampling
     pcl::VoxelGrid<pcl::PointXYZI> sor;
@@ -166,18 +158,13 @@ void cloud_cb(const sensor_msgs::PointCloud2ConstPtr& cloud_msg) {
     tree->setInputCloud(cloud);
 
     std::vector<pcl::PointIndices> cluster_indices;
-    try {
-        pcl::EuclideanClusterExtraction<pcl::PointXYZI> ec;
-        ec.setClusterTolerance(epsilon);
-        ec.setMinClusterSize(minClusterSize);
-        ec.setMaxClusterSize(maxClusterSize);
-        ec.setSearchMethod(tree);
-        ec.setInputCloud(cloud);
-        ec.extract(cluster_indices);
-    } catch (const pcl::PCLException& e) {
-        ROS_ERROR_STREAM("PCL exception caught during clustering: " << e.what());
-        return;
-    }
+    pcl::EuclideanClusterExtraction<pcl::PointXYZI> ec;
+    ec.setClusterTolerance(epsilon);
+    ec.setMinClusterSize(minClusterSize);
+    ec.setMaxClusterSize(maxClusterSize);
+    ec.setSearchMethod(tree);
+    ec.setInputCloud(cloud);
+    ec.extract(cluster_indices);
 
     colored_cloud->clear();
 
@@ -321,6 +308,8 @@ int main(int argc, char** argv) {
     ROS_INFO("Clustering parameters: epsilon=%.2f, minClusterSize=%.0f, maxClusterSize=%.0f", epsilon, minClusterSize, maxClusterSize);
     ROS_INFO("Voxel grid leaf size: %.3f", leafSize);
 
+    ROS_INFO("Waiting for point cloud messages...");
     ros::spin();
+
     return 0;
 }
