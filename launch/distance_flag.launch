@@ -1,0 +1,6 @@
+<launch>
+  <!-- Launch the distance flag node -->
+  <node name="distance_flag_node" pkg="lidar_clustering" type="distance_flag_node.py" output="screen">
+    <param name="distance_threshold" value="2.0"/>
+  </node>
+</launch>

@@ -1,0 +1,12 @@
+<launch>
+  <!-- Launch VLP16_points.launch to start the velodyne_pointcloud nodes -->
+  <include file="$(find velodyne_pointcloud)/launch/VLP16_points.launch">
+    <arg name="calibration" value="$(find velodyne_pointcloud)/params/VLP16db.yaml"/>
+  </include>
+
+  <!-- Launch the clustering node -->
+  <node name="object_detection" pkg="lidar_clustering" type="object_detection" output="screen"/>
+
+  <!-- Launch RViz with the custom configuration -->
+  <node name="rviz" pkg="rviz" type="rviz" output="screen" args="-d $(find lidar_clustering)/config/rviz_config.rviz"/>
+</launch>
