@@ -1,6 +1,13 @@
+<?xml version="1.0"?>
 <launch>
   <!-- Launch the distance flag node -->
   <node name="distance_flag_node" pkg="lidar_clustering" type="distance_flag_node.py" output="screen">
+    <!-- Distance threshold for risk detection -->
     <param name="distance_threshold" value="2.0"/>
+    
+    <!-- MQTT Broker settings -->
+    <param name="mqtt_broker" value="192.168.10.158"/>
+    <param name="mqtt_port" value="1883"/>
+    <param name="mqtt_topic" value="vehicle/risk_level"/>
   </node>
 </launch>

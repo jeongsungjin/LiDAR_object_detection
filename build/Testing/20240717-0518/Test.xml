@@ -2,7 +2,7 @@
 <Site BuildName="(empty)"
 	BuildStamp="20240717-0518-Experimental"
 	Name="ubuntu"
-	Generator="ctest-3.16.3"
+	Generator="ctest-3.26.0"
 	CompilerName="/usr/bin/c++"
 	CompilerVersion="9.4.0"
 	OSName="Linux"
@@ -24,11 +24,11 @@
 	ProcessorClockFrequency="0"
 	>
 	<Testing>
-		<StartDateTime>Jul 17 05:18 UTC</StartDateTime>
-		<StartTestTime>1721193487</StartTestTime>
+		<StartDateTime>Jul 17 13:53 UTC</StartDateTime>
+		<StartTestTime>1721224426</StartTestTime>
 		<TestList/>
-		<EndDateTime>Jul 17 05:18 UTC</EndDateTime>
-		<EndTestTime>1721193487</EndTestTime>
+		<EndDateTime>Jul 17 13:53 UTC</EndDateTime>
+		<EndTestTime>1721224426</EndTestTime>
 		<ElapsedMinutes>0</ElapsedMinutes>
 	</Testing>
 </Site>
